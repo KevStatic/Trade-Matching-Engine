@@ -4,6 +4,8 @@ import com.kev.tme.model.Order;
 import com.kev.tme.model.OrderSide;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.PriorityQueue;
 
 public class OrderBook {
@@ -13,6 +15,8 @@ public class OrderBook {
 
     // SELL: lowest price first, then earlier time
     private final PriorityQueue<Order> sellOrders;
+
+    private final Map<Long, Order> orderMap = new HashMap<>();
 
     public OrderBook(){
 
@@ -32,6 +36,9 @@ public class OrderBook {
     }
 
     public void addOrder(Order order){
+
+        orderMap.put(order.getOrderId(), order);
+
         if (order.getSide() == OrderSide.BUY){
             buyOrders.offer(order);
         }
@@ -46,6 +53,36 @@ public class OrderBook {
 
     public PriorityQueue<Order> getSellOrders(){
         return sellOrders;
+    }
+
+    public boolean cancelOrder(long orderId){
+        Order order = orderMap.remove(orderId);
+        if (order == null) return false;
+
+        if (order.getSide() == OrderSide.BUY){
+            return buyOrders.remove(order);
+        }
+        else{
+            return sellOrders.remove(order);
+        }
+    }
+
+    public boolean modifyOrder(long orderId, double newPrice, long newQuantity){
+        Order order = orderMap.get(orderId);
+        if (order == null) return false;
+
+        cancelOrder(orderId);
+
+        Order modified = new Order(
+                orderId,
+                order.getSide(),
+                order.getType(),
+                newPrice,
+                newQuantity
+        );
+
+        addOrder(modified);
+        return true;
     }
 
 }

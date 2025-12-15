@@ -25,10 +25,10 @@ public class Trade {
 
     @Override
     public String toString(){
-        return " TRADE | BUY =" + buyOrderId +
-                " SELL =" + sellOrderId +
-                " PRICE =" + price +
-                " QUANTITY =" + quantity;
+        return " TRADE | BUY = " + buyOrderId +
+                " SELL = " + sellOrderId +
+                " PRICE = " + price +
+                " QUANTITY = " + quantity;
     }
 
 }

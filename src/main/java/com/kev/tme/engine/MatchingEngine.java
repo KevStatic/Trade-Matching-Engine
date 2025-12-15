@@ -3,29 +3,35 @@ package com.kev.tme.engine;
 import com.kev.tme.model.Order;
 import com.kev.tme.model.Trade;
 
+import java.util.List;
+
 public class MatchingEngine {
 
     private final OrderBook orderBook;
 
+    private final TradeStore tradeStore;
+
     public MatchingEngine(){
         this.orderBook = new OrderBook();
+        this.tradeStore = new TradeStore();
     }
 
-    public void submitOrder(Order order){
+    public synchronized void submitOrder(Order order) {
         orderBook.addOrder(order);
         matchOrders();
     }
 
-    private void matchOrders(){
+    private synchronized void matchOrders(){
 
         while(!orderBook.getBuyOrders().isEmpty() && !orderBook.getSellOrders().isEmpty()){
 
             Order buy = orderBook.getBuyOrders().peek();
             Order sell = orderBook.getSellOrders().peek();
 
-            // Price check
-            if (buy.getPrice() < sell.getPrice()){
-                break; // Not possible
+            boolean priceMatch = buy.isMarketOrder() || sell.isMarketOrder() || buy.getPrice() >= sell.getPrice();
+
+            if (!priceMatch) {
+                break;
             }
 
             long tradedQty = Math.min(
@@ -33,7 +39,9 @@ public class MatchingEngine {
                     sell.getQuantity()
             );
 
-            double tradePrice = sell.getPrice();
+            double tradePrice = sell.isMarketOrder()
+                    ? buy.getPrice()
+                    : sell.getPrice();
 
             Trade trade = new Trade(
                     buy.getOrderId(),
@@ -42,6 +50,7 @@ public class MatchingEngine {
                     tradedQty
             );
 
+            tradeStore.recordTrade(trade);
             System.out.println(trade);
 
             buy.reduceQuantity(tradedQty);
@@ -57,6 +66,18 @@ public class MatchingEngine {
 
         }
 
+    }
+
+    public synchronized boolean cancelOrder(long orderId){
+        return orderBook.cancelOrder(orderId);
+    }
+
+    public synchronized boolean modifyOrder(long orderId, double newPrice, long newQuantity){
+        return orderBook.modifyOrder(orderId, newPrice, newQuantity);
+    }
+
+    public List<Trade> getTradeHistory() {
+        return tradeStore.getAllTrades();
     }
 
 }

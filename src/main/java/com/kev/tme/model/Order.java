@@ -54,4 +54,8 @@ public class Order {
         return timestamp;
     }
 
+    public boolean isMarketOrder(){
+        return type == OrderType.MARKET;
+    }
+
 }
