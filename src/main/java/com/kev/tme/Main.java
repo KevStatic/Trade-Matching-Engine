@@ -36,7 +36,10 @@ public class Main {
 //        engine.submitOrder(new Order(41, OrderSide.SELL, OrderType.LIMIT, 100.00, 5));
 
         // 6) Trade History verification
-        System.out.println("Total Trades: " + engine.getTradeHistory().size());
+//        System.out.println("Total Trades: " + engine.getTradeHistory().size());
+
+
+        // Spring Boot Activation
 
 
     }

@@ -2,9 +2,11 @@ package com.kev.tme.engine;
 
 import com.kev.tme.model.Order;
 import com.kev.tme.model.Trade;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class MatchingEngine {
 
     private final OrderBook orderBook;
